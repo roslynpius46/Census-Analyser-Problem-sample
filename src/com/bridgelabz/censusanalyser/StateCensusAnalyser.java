@@ -34,11 +34,14 @@ public class StateCensusAnalyser<T> {
      * @throws IOException   If an I/O error occurs.
      * @throws CsvException  If an error occurs while parsing the CSV file.
      */
-    public List<T> loadCensusData(String filePath, Class<T> type) throws IOException, CsvException {
+    public List<T> loadCensusData(String filePath, Class<T> type) throws IOException, CsvException, CensusAnalyserException {
         try (CSVReader csvReader = new CSVReaderBuilder(new FileReader(filePath)).build()) {
             List<String[]> records = csvReader.readAll();
             Iterator<String[]> iterator = records.iterator();
-            iterator.next(); // Skipping header containg column headings
+            if (!iterator.hasNext()) {
+                throw new CensusAnalyserException("CSV file is empty.");
+            }
+            iterator.next(); // Skipping header
 
             while (iterator.hasNext()) {
                 String[] record = iterator.next();
@@ -48,6 +51,7 @@ public class StateCensusAnalyser<T> {
         }
         return censusDataList;
     }
+
 
     /**
      * @desc Creates an instance of the data model class.
